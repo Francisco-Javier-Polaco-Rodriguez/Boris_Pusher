@@ -27,8 +27,8 @@ for k in range(Ncores):
 E = lambda x,t : np.array([0,0,0])
 B = lambda x,t : np.array([0,0,B0])
 
-dt_e = 0.05*wc_e**-1
-dt_p = 0.05*wc_p**-1
+dt_e = 0.1*wc_e**-1
+dt_p = 0.1*wc_p**-1
 print(dt_p)
 
 test_electrons_pusher = []
@@ -38,7 +38,7 @@ test_protons_pusher = []
 for k in range(Ncores):
   test_protons_pusher.append(Boris_pusher(protons[k],dt_e,E,B,mode = 'Analytical'))
 
-N= 5000
+N= 100000
 
 print('\nSimulation of test electrons\n %i Threads\n %i Steps of time so %f ns time simulation\n %i Particles per thread\n'%(Ncores,N,N*dt_e*1e6,Npart_eachcore))
 th_el = []
@@ -60,9 +60,9 @@ for thread in th_pt:
 
 electrons_ = particles_resembled(electrons)
 protons_ = particles_resembled(protons)
-print(protons_.x.shape)
+
 electrons_.plot_trajectory()
 protons_.plot_trajectory()
-electrons_.plot_energy_in_time()
-protons_.plot_energy_in_time()
+electrons_.plot_energy_in_time(wc_e**-1*2*pi,'2\pi\omega_{ce}^{-1}')
+protons_.plot_energy_in_time(wc_p**-1*2*pi,'2\pi\omega_{cp}^{-1}')
 plt.show()
