@@ -20,7 +20,7 @@ for k in range(Ncores):
   electrons.append(particles(x0*1e-3, v0, m_e, -e))
 for k in range(Ncores):
   x0, v0 =1e-6*np.random.rand(Npart_eachcore,3), (np.random.rand(Npart_eachcore,3)-0.5 * np.ones([Npart_eachcore,3]))*1e6
-  protons.append(particles(x0, v0, m_e, -e))
+  protons.append(particles(x0, v0, m_p, e))
 
 
 
@@ -36,14 +36,14 @@ for k in range(Ncores):
   test_electrons_pusher.append(Boris_pusher(electrons[k],dt_e,E,B,mode = 'Analytical'))
 test_protons_pusher = []
 for k in range(Ncores):
-  test_protons_pusher.append(Boris_pusher(protons[k],dt_e,E,B,mode = 'Analytical'))
+  test_protons_pusher.append(Boris_pusher(protons[k],dt_p,E,B,mode = 'Analytical'))
 
 N= 100000
 
 print('\nSimulation of test electrons\n %i Threads\n %i Steps of time so %f ns time simulation\n %i Particles per thread\n'%(Ncores,N,N*dt_e*1e6,Npart_eachcore))
 th_el = []
 for k in range(Ncores):
-  th_el.append(Thread(target = test_electrons_pusher[k].simulate, args = (N,)))
+  th_el.append(Thread(target = test_electrons_pusher[k].simulate_opt, args = (N,)))
 for thread in th_el:
   thread.start()
 for thread in th_el:
@@ -52,7 +52,7 @@ for thread in th_el:
 print('\nSimulation of test protons\n %i Threads\n %i Steps of time so %f ns time simulation\n %i Particles per thread\n'%(Ncores,N,N*dt_e*1e6,Npart_eachcore))
 th_pt = []
 for k in range(Ncores):
-  th_pt.append(Thread(target = test_protons_pusher[k].simulate, args = (N,)))
+  th_pt.append(Thread(target = test_protons_pusher[k].simulate_opt, args = (N,)))
 for thread in th_pt:
   thread.start()
 for thread in th_pt:
