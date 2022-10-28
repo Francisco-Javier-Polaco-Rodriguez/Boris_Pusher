@@ -37,6 +37,7 @@ class particles():
 
   def t(self):
     return np.arange(0,self.x.shape[2],1)*self.dt
+
   def plot_trajectory(self,colord = 'b'):
     fig = plt.figure()
     ax = plt.axes(projection='3d')
@@ -47,12 +48,13 @@ class particles():
     ax.set_zlabel('z    (m)',size = 13)
     ax.set_title('Particles trajectories')
     return fig
-  def plot_energy_in_time(self,colord = 'b'):
+
+  def plot_energy_in_time(self,timescale,name_timescale,colord = 'b'):
     fig = plt.figure()
-    plt.plot(self.t(),self.get_mean_energy_in_time())
+    plt.plot(self.t()/timescale,self.get_mean_energy_in_time())
     plt.title('Energy in time')
     plt.ylabel(r'$\langle E\rangle$  (eV)',size = 13)
-    plt.xlabel('t   (s)')
+    plt.xlabel(r't   ($%s$)'%(name_timescale))
     plt.grid()
 
 class particles_resembled(particles):
