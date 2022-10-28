@@ -1,6 +1,6 @@
 import numpy as np
 from Fields_class import fields
-
+from tqdm import tqdm
 
 class Boris_pusher():
 
@@ -8,7 +8,7 @@ class Boris_pusher():
     self.particles = particles
     self.dt = dt
     self.fields = fields(E, B, mode=mode)
-    self. k = 0
+    self.k = 0
 
   def forward(self):
     dt = self.dt
@@ -24,4 +24,6 @@ class Boris_pusher():
     v_new = v_plus + q * E / m * dt / 2
     self.particles.v_forward(v_new)
     self.k += 1
-    
+  def simulate(self,N):
+    for k in tqdm(range(N)):
+      self.forward()
