@@ -6,30 +6,45 @@ from Pusher_class import Boris_pusher
 from scipy.constants import mu_0,epsilon_0,m_e,m_p,e,pi,c
 from threading import Thread
 
-B0 = 1
-E0 = 100
+#Normalization to B0
+B0 = [1,0,0]
+E0 = [0,0,0]
 
-wc_e = e*B0/(m_e)
-wc_p = e*B0/(m_p)
+norm_B0 = np.linalg.norm(B0)
+wc_e = e*norm_B0/(m_e)
+wc_p = e*norm_B0/(m_p)
 
-Ncores = 1
-Npart_eachcore = 20
+## Normalizing in function to Alfven velocity
+V_A = 1
+
+## Perturbation definition
+w_wisteler = 5*wc_p
+theta = 0
+k0 = 2.044*wc_p/V_A
+k = k0*np.array([np.cos(theta),0,np.sin(theta)])
+
+
+B = lambda x,t: np.linalg.norm(B0)*1e-4*np.array([0,np.cos(w_wisteler*t+np.dot(k,x)),np.sin(w_wisteler*t+np.dot(k,x))])
+E = lambda x,t: np.linalg.norm(B0)*1e-4*np.array([0,-np.sin(w_wisteler*t+np.dot(k,x)),np.cos(w_wisteler*t+np.dot(k,x))])/c**2
+Ncores = 5
+Npart_eachcore = 200
 electrons = []
 protons = []
 for k in range(Ncores):
-  x0, v0 =1e-6*np.random.rand(Npart_eachcore,3), (np.random.rand(Npart_eachcore,3)-0.5 * np.ones([Npart_eachcore,3]))*1e6
-  electrons.append(particles(x0*1e-3, v0, m_e, -e))
+  x0, v0 = np.random.rand(Npart_eachcore,3), 2*(np.random.rand(Npart_eachcore,3)-0.5 * np.ones([Npart_eachcore,3]))*6000
+  electrons.append(particles(x0, v0, m_e, -e))
 for k in range(Ncores):
-  x0, v0 =1e-6*np.random.rand(Npart_eachcore,3), (np.random.rand(Npart_eachcore,3)-0.5 * np.ones([Npart_eachcore,3]))*1e6
+  x0, v0 = np.random.rand(Npart_eachcore,3), 2*(np.random.rand(Npart_eachcore,3)-0.5 * np.ones([Npart_eachcore,3]))*6000
   protons.append(particles(x0, v0, m_p, e))
 
+print(v0)
 
 
-E = lambda x,t : np.array([0,E0,0])
-B = lambda x,t : np.array([0,0,B0])
+E = lambda x,t : np.array(E0)
+B = lambda x,t : np.array(B0)
 
-dt_e = 0.05*wc_e**-1
-dt_p = 0.05*wc_p**-1
+dt_e = 0.1*wc_e**-1
+dt_p = 0.1*wc_p**-1
 
 test_electrons_pusher = []
 for k in range(Ncores):
@@ -38,7 +53,7 @@ test_protons_pusher = []
 for k in range(Ncores):
   test_protons_pusher.append(Boris_pusher(protons[k],dt_p,E,B,mode = 'Analytical'))
 
-N= 100000
+N= 10000
 
 print('\nSimulation of test electrons\n %i Threads\n %i Steps of time so %f cyclotrons periods time simulation\n %i Particles per thread\n'%(Ncores,N,N*dt_e*wc_e*2*pi,Npart_eachcore))
 th_el = []
@@ -61,9 +76,10 @@ for thread in th_pt:
 electrons_ = particles_resembled(electrons)
 protons_ = particles_resembled(protons)
 
+
 print(protons_.get_mean_energy_in_time())
-electrons_.plot_trajectory()
-protons_.plot_trajectory()
-electrons_.plot_energy_in_time(wc_e**-1*2*pi,'2\pi\omega_{ce}^{-1}')
-protons_.plot_energy_in_time(wc_p**-1*2*pi,'2\pi\omega_{cp}^{-1}')
+#electrons_.plot_trajectory()
+#protons_.plot_trajectory()
+electrons_.plot_dmu2_Vx()
+protons_.plot_dmu2_Vx()
 plt.show()

@@ -33,7 +33,7 @@ class particles():
     return self.m,self.q,self.x[:,:,-1],self.v[:,:,-1]
 
   def get_mean_energy_in_time(self):
-    return 0.5*self.m*np.mean(np.linalg.norm(self.v,axis = 1),axis = 0)**2/e
+    return 0.5*self.m*np.mean(np.linalg.norm(self.v,axis = 1)**2,axis = 0)/e
 
   def t(self):
     return np.arange(0,self.x.shape[2],1)*self.dt
@@ -48,7 +48,21 @@ class particles():
     ax.set_zlabel('z    (m)',size = 13)
     ax.set_title('Particles trajectories')
     return fig
-
+  def mean_Vx(self):
+    return np.sum(self.v[:,0,:],axis = 1)/self.t().shape[0]
+  def mu(self):
+    print(self.t()[-1].shape)
+    return np.sum(self.v[:,0,:] / np.linalg.norm(self.v,axis = 1),axis = 1)/self.t().shape[0]
+  def dmu2(self):
+    return np.sum((self.v[:,0,:] / np.linalg.norm(self.v,axis = 1)-self.mu()[:,np.newaxis])**2 , axis = 1)/self.t().shape[0]
+  def plot_dmu2_Vx(self):
+    fig = plt.figure()
+    plt.plot(self.mean_Vx(),self.dmu2(),'.r')
+    plt.title(r'$\langle\delta\mu\delta\mu\rangle(\langle V_{e\parallel}\rangle)$')
+    plt.yscale('log')
+    plt.ylabel(r'$\langle \delta\mu\delta\mu\rangle/V_A^2$ ',size = 13)
+    plt.xlabel(r'$\langle V_{e\parallel}\rangle/V_A$')
+    plt.grid()
   def plot_energy_in_time(self,timescale,name_timescale,colord = 'b'):
     fig = plt.figure()
     plt.plot(self.t()/timescale,self.get_mean_energy_in_time())
