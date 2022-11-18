@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.constants import mu_0,epsilon_0,m_e,m_p,e,pi,c
-
+from scipy.io import savemat
 class particles():
   def __init__(self, x0, v0, m,q):
     # Axis notation 0 = particles, 1 = space x y z, 2 = time
@@ -51,7 +51,6 @@ class particles():
   def mean_Vx(self):
     return np.sum(self.v[:,0,:],axis = 1)/self.t().shape[0]
   def mu(self):
-    print(self.t()[-1].shape)
     return np.sum(self.v[:,0,:] / np.linalg.norm(self.v,axis = 1),axis = 1)/self.t().shape[0]
   def dmu2(self):
     return np.sum((self.v[:,0,:] / np.linalg.norm(self.v,axis = 1)-self.mu()[:,np.newaxis])**2 , axis = 1)/self.t().shape[0]
@@ -70,6 +69,9 @@ class particles():
     plt.ylabel(r'$\langle E\rangle$  (eV)',size = 13)
     plt.xlabel(r't   ($%s$)'%(name_timescale))
     plt.grid()
+  def save(self,name):
+    savemat(name,{'v':self.v,'x':self.x,'t':self.t})
+
 
 class particles_resembled(particles):
   def __init__(self,list_of_particles_classes):

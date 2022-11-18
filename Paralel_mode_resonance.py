@@ -7,7 +7,7 @@ from scipy.constants import mu_0,epsilon_0,m_e,m_p,e,pi,c
 from threading import Thread
 
 #Normalization to B0
-B0 = [1,0,0]
+B0 = [-1,0,0]
 E0 = [0,0,0]
 
 norm_B0 = np.linalg.norm(B0)
@@ -21,27 +21,27 @@ V_A = 1
 w_wisteler = 5*wc_p
 theta = 0
 k0 = 2.044*wc_p/V_A
-k = k0*np.array([np.cos(theta),0,np.sin(theta)])
+K_ = k0*np.array([np.cos(theta),0,np.sin(theta)])
 
 
-B = lambda x,t: np.linalg.norm(B0)*1e-4*np.array([0,np.cos(w_wisteler*t+np.dot(k,x)),np.sin(w_wisteler*t+np.dot(k,x))])
-E = lambda x,t: np.linalg.norm(B0)*1e-4*np.array([0,-np.sin(w_wisteler*t+np.dot(k,x)),np.cos(w_wisteler*t+np.dot(k,x))])/c**2
-Ncores = 5
-Npart_eachcore = 200
+B_wav = lambda x,t : np.linalg.norm(B0)*1e-4*np.array([0,np.cos(w_wisteler*t+np.dot(K_,x)),np.sin(w_wisteler*t+np.dot(K_,x))])
+E_wav = lambda x,t : np.linalg.norm(B0)*1e-4*np.array([0,-np.sin(w_wisteler*t+np.dot(K_,x)),np.cos(w_wisteler*t+np.dot(K_,x))])/c
+
+Ncores = 1
+Npart_eachcore = 2000
+
 electrons = []
 protons = []
 for k in range(Ncores):
-  x0, v0 = np.random.rand(Npart_eachcore,3), 2*(np.random.rand(Npart_eachcore,3)-0.5 * np.ones([Npart_eachcore,3]))*6000
-  electrons.append(particles(x0, v0, m_e, -e))
+  x0, v0 = 1e-6*np.random.rand(Npart_eachcore,3), 2*(np.random.rand(Npart_eachcore,3)-0.5 * np.ones([Npart_eachcore,3]))*6000
+  electrons.append(particles(x0*1e-3, v0, m_e, -e))
 for k in range(Ncores):
-  x0, v0 = np.random.rand(Npart_eachcore,3), 2*(np.random.rand(Npart_eachcore,3)-0.5 * np.ones([Npart_eachcore,3]))*6000
+  x0, v0 = 1e-6*np.random.rand(Npart_eachcore,3), 2*(np.random.rand(Npart_eachcore,3)-0.5 * np.ones([Npart_eachcore,3]))*6000
   protons.append(particles(x0, v0, m_p, e))
 
-print(v0)
 
-
-E = lambda x,t : np.array(E0)
-B = lambda x,t : np.array(B0)
+E = lambda x,t : np.array(E0) + E_wav(x,t)
+B = lambda x,t : np.array(B0) + B_wav(x,t)
 
 dt_e = 0.1*wc_e**-1
 dt_p = 0.1*wc_p**-1
@@ -55,7 +55,7 @@ for k in range(Ncores):
 
 N= 10000
 
-print('\nSimulation of test electrons\n %i Threads\n %i Steps of time so %f cyclotrons periods time simulation\n %i Particles per thread\n'%(Ncores,N,N*dt_e*wc_e*2*pi,Npart_eachcore))
+print('\nSimulation of test electrons\n %i Threads\n %i Steps of time so %1.0f cyclotrons periods time simulation\n %i Particles per thread (%i particles in total) \n'%(Ncores,N,N*dt_e*wc_e*2*pi,Npart_eachcore,Ncores*Npart_eachcore))
 th_el = []
 for k in range(Ncores):
   th_el.append(Thread(target = test_electrons_pusher[k].simulate_opt, args = (N,)))
@@ -64,22 +64,23 @@ for thread in th_el:
 for thread in th_el:
   thread.join()
 
-print('\nSimulation of test protons\n %i Threads\n %i Steps of time so %f cyclotrons periods time simulation\n %i Particles per thread\n'%(Ncores,N,N*dt_p*wc_p*2*pi,Npart_eachcore))
-th_pt = []
-for k in range(Ncores):
-  th_pt.append(Thread(target = test_protons_pusher[k].simulate_opt, args = (N,)))
-for thread in th_pt:
-  thread.start()
-for thread in th_pt:
-  thread.join()
+#print('\nSimulation of test protons\n %i Threads\n %i Steps of time so %1.0f cyclotrons periods time simulation\n %i Particles per thread\n'%#(Ncores,N,N*dt_p*wc_p*2*pi,Npart_eachcore))
+#th_pt = []
+#for k in range(Ncores):
+#  th_pt.append(Thread(target = test_protons_pusher[k].simulate_opt, args = (N,)))
+#for thread in th_pt:
+#  thread.start()
+#for thread in th_pt:
+#  thread.join()
 
 electrons_ = particles_resembled(electrons)
-protons_ = particles_resembled(protons)
+#protons_ = particles_resembled(protons)
 
 
-print(protons_.get_mean_energy_in_time())
 #electrons_.plot_trajectory()
 #protons_.plot_trajectory()
 electrons_.plot_dmu2_Vx()
-protons_.plot_dmu2_Vx()
+#protons_.plot_dmu2_Vx()
 plt.show()
+
+electrons_.save('Wisteler_wave_theta=%1.2f_%i_time_steps.mat'%(theta,N))
