@@ -18,7 +18,7 @@ class Boris_pusher():
     E, B = self.fields.get_fields_analytical(x, t_)
     v_minus = v + q / m * E * dt / 2
     t = q * dt / 2 / m * B
-    v_prime = v + np.cross(v_minus, t,axis = 1)
+    v_prime = v_minus + np.cross(v_minus, t,axis = 1)
     s = t * 2 / (1 + np.linalg.norm(t, axis = 0)**2)
     v_plus = v_minus + np.cross(v_prime, s,axis = 1)
     v_new = v_plus + q * E / m * dt / 2
@@ -36,8 +36,8 @@ class Boris_pusher():
     E, B = self.fields.get_fields_analytical(xold, t)
     v_minus = vold + q / m * E * dt / 2
     t_ = q * dt / 2 / m * B
-    v_prime = vold + np.cross(v_minus, t_,axis = 1)
-    s = t_ * 2 / (1 + np.linalg.norm(t_, axis = 0)**2)
+    v_prime = v_minus + np.cross(v_minus, t_,axis = 1)
+    s = t_ * 2 / (1 + np.linalg.norm(t_, axis = 1)[:,np.newaxis]**2)
     v_plus = v_minus + np.cross(v_prime, s,axis = 1)
     v_new = v_plus + q * E / m * dt / 2
     return v_new

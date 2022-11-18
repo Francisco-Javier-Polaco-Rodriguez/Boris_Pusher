@@ -11,8 +11,8 @@ B0 = 1
 wc_e = e*B0/(m_e)
 wc_p = e*B0/(m_p)
 
-Ncores = 8
-Npart_eachcore = 5
+Ncores = 1
+Npart_eachcore = 2
 electrons = []
 protons = []
 for k in range(Ncores):
@@ -27,9 +27,8 @@ for k in range(Ncores):
 E = lambda x,t : np.array([0,0,0])
 B = lambda x,t : np.array([0,0,B0])
 
-dt_e = 0.1*wc_e**-1
-dt_p = 0.1*wc_p**-1
-print(dt_p)
+dt_e = 0.05*wc_e**-1
+dt_p = 0.05*wc_p**-1
 
 test_electrons_pusher = []
 for k in range(Ncores):
@@ -38,9 +37,9 @@ test_protons_pusher = []
 for k in range(Ncores):
   test_protons_pusher.append(Boris_pusher(protons[k],dt_p,E,B,mode = 'Analytical'))
 
-N= 100000
+N= 1000000
 
-print('\nSimulation of test electrons\n %i Threads\n %i Steps of time so %f ns time simulation\n %i Particles per thread\n'%(Ncores,N,N*dt_e*1e6,Npart_eachcore))
+print('\nSimulation of test electrons\n %i Threads\n %i Steps of time so %f cyclotrons periods time simulation\n %i Particles per thread\n'%(Ncores,N,N*dt_e*wc_e*2*pi,Npart_eachcore))
 th_el = []
 for k in range(Ncores):
   th_el.append(Thread(target = test_electrons_pusher[k].simulate_opt, args = (N,)))
@@ -49,7 +48,7 @@ for thread in th_el:
 for thread in th_el:
   thread.join()
 
-print('\nSimulation of test protons\n %i Threads\n %i Steps of time so %f ns time simulation\n %i Particles per thread\n'%(Ncores,N,N*dt_e*1e6,Npart_eachcore))
+print('\nSimulation of test protons\n %i Threads\n %i Steps of time so %f cyclotrons periods time simulation\n %i Particles per thread\n'%(Ncores,N,N*dt_p*wc_p*2*pi,Npart_eachcore))
 th_pt = []
 for k in range(Ncores):
   th_pt.append(Thread(target = test_protons_pusher[k].simulate_opt, args = (N,)))

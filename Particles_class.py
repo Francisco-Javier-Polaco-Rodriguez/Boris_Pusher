@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.constants import mu_0,epsilon_0,m_e,m_p,e,pi,c
-class particles():
 
+class particles():
   def __init__(self, x0, v0, m,q):
     # Axis notation 0 = particles, 1 = space x y z, 2 = time
     self.x = x0[:,:,np.newaxis]
@@ -33,7 +33,7 @@ class particles():
     return self.m,self.q,self.x[:,:,-1],self.v[:,:,-1]
 
   def get_mean_energy_in_time(self):
-    return np.mean(np.mean(0.5*self.m*self.v**2,axis = 0),axis = 0)/e
+    return 0.5*self.m*np.mean(np.linalg.norm(self.v,axis = 1),axis = 0)**2/e
 
   def t(self):
     return np.arange(0,self.x.shape[2],1)*self.dt
