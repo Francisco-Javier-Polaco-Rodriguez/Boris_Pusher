@@ -53,7 +53,7 @@ test_protons_pusher = []
 for k in range(Ncores):
   test_protons_pusher.append(Boris_pusher(protons[k],dt_p,E,B,mode = 'Analytical'))
 
-N= 10000
+N= 2000
 
 print('\nSimulation of test electrons\n %i Threads\n %i Steps of time so %1.0f cyclotrons periods time simulation\n %i Particles per thread (%i particles in total) \n'%(Ncores,N,N*dt_e*wc_e*2*pi,Npart_eachcore,Ncores*Npart_eachcore))
 th_el = []

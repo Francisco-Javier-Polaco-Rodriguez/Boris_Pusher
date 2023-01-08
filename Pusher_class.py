@@ -4,7 +4,7 @@ from tqdm import tqdm
 
 class Boris_pusher():
 
-  def __init__(self, particles, dt, E, B, mode='Analytical'):
+  def __init__(self, particles, dt, E, B, mode = 'Analytical'):
     self.particles = particles
     self.dt = dt
     self.fields = fields(E, B, mode=mode)
